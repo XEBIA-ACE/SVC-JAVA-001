@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: order-management-service
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:order_management}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:order_user}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+server:
+  port: ${APP_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+  compression:
+    enabled: true
+
+# External Services Configuration
+external:
+  payment-gateway:
+    url: ${PAYMENT_GATEWAY_URL:http://localhost:8081/api/payments}
+    api-key: ${PAYMENT_GATEWAY_API_KEY:payment_api_key}
+
+  inventory-service:
+    url: ${INVENTORY_SERVICE_URL:http://localhost:8082/api/inventory}
+    api-key: ${INVENTORY_SERVICE_API_KEY:inventory_api_key}
+
+  notification-service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8083/api/notifications}
+    api-key: ${NOTIFICATION_SERVICE_API_KEY:notification_api_key}
+
+# Logging Configuration
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    com.orderservice: DEBUG
+    org.springframework.web: INFO
+    org.hibernate: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/order-service.log
+    max-size: 10MB
+    max-history: 30
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: ${METRICS_EXPORT_ENABLED:true}
+
+# OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+
+# Application Configuration
+app:
+  version: 1.0.0
+  name: Order Management Service
