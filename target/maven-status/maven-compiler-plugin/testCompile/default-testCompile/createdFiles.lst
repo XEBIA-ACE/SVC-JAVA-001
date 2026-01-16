@@ -1,0 +1,3 @@
+com/orderservice/repository/OrderRepositoryTest.class
+com/orderservice/controller/OrderControllerTest.class
+com/orderservice/service/OrderServiceTest.class
